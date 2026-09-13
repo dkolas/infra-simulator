@@ -214,7 +214,8 @@ export function Chart({ data, series, span, now, format, minY = 1, maxY, height 
         {series.map((s, si) => (
           <li key={s.key} style={{ color: `var(${s.color})` }}>
             <span aria-hidden="true">{s.dashed ? '╌' : '─'} </span>
-            {s.label} <span className="value">{shown ? format(cols[si][shownIndex]) : '—'}</span>
+            {s.label}
+            {shown && <span className="value"> {format(cols[si][shownIndex])}</span>}
           </li>
         ))}
         {hoverIndex !== null && shown && <li className="warn">at {fmtAgo(now - shown.t)}</li>}
