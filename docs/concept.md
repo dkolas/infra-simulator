@@ -81,7 +81,7 @@ Retries are included from the start because they amplify load during a breakdown
 ### 3.6 External resource
 
 - Latency comes from the processing-time distribution above.
-- Optional capacity cap expressed as a maximum concurrent calls or calls per minute. Calls over the cap fail immediately. Off by default.
+- Optional capacity cap expressed as maximum concurrent calls. A call over the cap fails immediately and counts as an attempt. The worker keeps the job, backs off exponentially from one second, and tries again, so the job holds its slot and memory while it waits. Off by default.
 - Failure rate, a percentage of calls that fail regardless of load.
 
 ### 3.7 Errors

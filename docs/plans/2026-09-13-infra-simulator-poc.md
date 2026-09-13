@@ -134,3 +134,5 @@ Divergences from the plan above, recorded after implementation.
 - Tuned defaults differ from the plan's table: worker concurrency 14, min replicas 4, scale-up step 4, cooldown 30 s, evaluation 15 s, target queue depth per worker 5. `docs/concept.md` carries the current values.
 - Configuration for processing time and memory distributions lives in the Incoming requests drawer, per the concept, rather than a separate panel. Percentile window lives in a small Metrics drawer opened from the latency chart title.
 - Step 16, deploy, is left to the user: the repository has no remote yet. The README states the Vercel settings.
+- After the review pass: capped external calls are retried by the worker with exponential backoff while the job keeps its slot, rather than re-enqueued. The engine design note above describing "requeued immediately" applies only to failures the external resource reports after a call.
+- Chart series colors are token names resolved at draw time; canvas cannot read `var()`.
