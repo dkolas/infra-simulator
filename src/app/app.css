@@ -18,20 +18,36 @@
   font-size: 15px;
 }
 
-.top {
+/* Both rows share one four-column grid so panel edges line up. */
+.top,
+.charts {
   display: grid;
-  grid-template-columns: minmax(280px, 1fr) minmax(0, 3fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--s3);
 }
 
-.charts {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: var(--s3);
+.top > .controls {
+  grid-column: span 1;
+}
+
+.top > .schematic {
+  grid-column: span 3;
+}
+
+@media (max-width: 1200px) {
+  .top,
+  .charts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .top > .schematic {
+    grid-column: span 1;
+  }
 }
 
 @media (max-width: 800px) {
-  .top {
+  .top,
+  .charts {
     grid-template-columns: minmax(0, 1fr);
   }
 }
