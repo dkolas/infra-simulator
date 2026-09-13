@@ -27,8 +27,8 @@ export function Charts() {
   const errors = useMemo<SeriesSpec[]>(() => [{ key: 'errorRate', label: 'error rate', color: red }], []);
   const throughput = useMemo<SeriesSpec[]>(
     () => [
-      { key: 'rpsIn', label: 'in', color: dim },
-      { key: 'rpsOut', label: 'out', color: green },
+      { key: 'rpsIn', label: 'in', color: amber, dashed: true, smooth: 5 },
+      { key: 'rpsOut', label: 'out', color: green, smooth: 5 },
     ],
     [],
   );
@@ -65,7 +65,7 @@ export function Charts() {
         <div className="panel-head">
           <h2>Throughput</h2>
         </div>
-        <Explain short="Requests arriving versus jobs completing. A persistent gap means the queue is growing." />
+        <Explain short="Requests arriving versus jobs completing, smoothed over 5 s. A persistent gap means the queue is growing." />
         <Chart data={series} series={throughput} span={CHART_SPAN} now={now} format={rps} minY={10} />
       </div>
       <div className="panel">

@@ -65,10 +65,7 @@ export function Schematic() {
         <h2>Architecture</h2>
         <span className="muted">click a component to configure it</span>
       </div>
-      <Explain
-        short="Requests enter at the API, wait in the queue, and are processed by workers calling the external resource. Each square is one container."
-        long="Green squares are ready, filling as they take load. Amber is cold-starting. Red is dead from memory pressure. Dim squares are draining before shutdown."
-      />
+      <Explain short="Requests enter at the API, wait in the queue, and are processed by workers calling the external resource. Each square is one container: green is ready and fills as it takes load, amber is cold-starting, red is dead from memory pressure, dim is draining before shutdown." />
       <div className="flow">
         <Box id="api" title="Web API" stat={`${api.length} containers · ${apiInflight} in flight`} detail={summarize(api)}>
           <Replicas replicas={api} capacity={config.api.connections} />
