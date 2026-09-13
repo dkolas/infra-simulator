@@ -16,6 +16,13 @@ export function Charts() {
   const red = '--danger';
   const dim = '--muted';
 
+  const throughput = useMemo<SeriesSpec[]>(
+    () => [
+      { key: 'rpsIn', label: 'in', color: amber, smooth: 5 },
+      { key: 'rpsOut', label: 'out', color: green, smooth: 5 },
+    ],
+    [],
+  );
   const latency = useMemo<SeriesSpec[]>(
     () => [
       { key: 'p50', label: 'p50', color: dim },
@@ -24,15 +31,8 @@ export function Charts() {
     ],
     [],
   );
-  const errors = useMemo<SeriesSpec[]>(() => [{ key: 'errorRate', label: 'error rate', color: red }], []);
-  const throughput = useMemo<SeriesSpec[]>(
-    () => [
-      { key: 'rpsIn', label: 'in', color: amber, dashed: true, smooth: 5 },
-      { key: 'rpsOut', label: 'out', color: green, smooth: 5 },
-    ],
-    [],
-  );
   const depth = useMemo<SeriesSpec[]>(() => [{ key: 'queueDepth', label: 'queue depth', color: green }], []);
+  const errors = useMemo<SeriesSpec[]>(() => [{ key: 'errorRate', label: 'error rate', color: red }], []);
   const replicas = useMemo<SeriesSpec[]>(
     () => [
       { key: 'apiReplicas', label: 'api', color: dim },
@@ -46,6 +46,13 @@ export function Charts() {
     <section className="charts" aria-label="Metrics">
       <div className="panel">
         <div className="panel-head">
+          <h2>Throughput</h2>
+        </div>
+        <Explain short="Requests arriving versus jobs completing, smoothed over 5 s. A persistent gap means the queue is growing." />
+        <Chart data={series} series={throughput} span={CHART_SPAN} now={now} format={rps} minY={10} />
+      </div>
+      <div className="panel">
+        <div className="panel-head">
           <h2>End-to-end latency</h2>
           <button type="button" className="link" onClick={() => store.openDrawer('sim')}>
             window {config.sim.metricsWindow}s
@@ -56,24 +63,17 @@ export function Charts() {
       </div>
       <div className="panel">
         <div className="panel-head">
-          <h2>Error rate</h2>
-        </div>
-        <Explain short="Share of jobs that were rejected, missed the deadline, or exhausted their retries." />
-        <Chart data={series} series={errors} span={CHART_SPAN} now={now} format={pct} maxY={1} />
-      </div>
-      <div className="panel">
-        <div className="panel-head">
-          <h2>Throughput</h2>
-        </div>
-        <Explain short="Requests arriving versus jobs completing, smoothed over 5 s. A persistent gap means the queue is growing." />
-        <Chart data={series} series={throughput} span={CHART_SPAN} now={now} format={rps} minY={10} />
-      </div>
-      <div className="panel">
-        <div className="panel-head">
           <h2>Queue depth</h2>
         </div>
         <Explain short="Jobs waiting for a worker. The scaler watches this per worker." />
         <Chart data={series} series={depth} span={CHART_SPAN} now={now} format={num} minY={10} />
+      </div>
+      <div className="panel">
+        <div className="panel-head">
+          <h2>Error rate</h2>
+        </div>
+        <Explain short="Share of jobs that were rejected, missed the deadline, or exhausted their retries." />
+        <Chart data={series} series={errors} span={CHART_SPAN} now={now} format={pct} maxY={1} />
       </div>
       <div className="panel">
         <div className="panel-head">
