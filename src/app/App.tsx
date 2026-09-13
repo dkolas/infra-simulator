@@ -15,8 +15,8 @@ export function App() {
         />
       </header>
       <div className="top">
-        <Schematic />
         <Controls />
+        <Schematic />
       </div>
       <Charts />
       <ConfigDrawer />

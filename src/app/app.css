@@ -20,7 +20,7 @@
 
 .top {
   display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(280px, 1fr);
+  grid-template-columns: minmax(280px, 1fr) minmax(0, 3fr);
   gap: var(--s3);
 }
 

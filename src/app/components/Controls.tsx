@@ -16,9 +16,9 @@ export function Controls() {
   const rate = PARAMS['traffic.baseRate'];
   const burst = PARAMS['traffic.burstiness'];
   return (
-    <section className="panel controls" aria-label="Simulation controls">
+    <section className="panel controls" aria-label="Requests">
       <div className="panel-head">
-        <h2>Controls</h2>
+        <h2>Requests</h2>
         <span>
           T+{fmtTime(snapshot?.t ?? 0)} <span className="muted">{running ? `running ${speed}×` : 'paused'}</span>
         </span>
