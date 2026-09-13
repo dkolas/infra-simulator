@@ -37,6 +37,7 @@ function profileMax(c: SimConfig['traffic']): number {
  */
 export class Arrivals {
   private inBurst = false;
+  private burstInitialised = false;
   private burstStateUntil = 0;
   private tenXFrom = 0;
   private tenXUntil = -1;
@@ -91,6 +92,12 @@ export class Arrivals {
     if (c.burstiness <= 0) {
       this.inBurst = false;
       return;
+    }
+    if (!this.burstInitialised) {
+      // Start quiet; the first burst comes after one gap.
+      this.burstInitialised = true;
+      this.inBurst = false;
+      this.burstStateUntil = t + this.rng.exponential(c.burstGap);
     }
     while (t >= this.burstStateUntil) {
       this.inBurst = !this.inBurst;
