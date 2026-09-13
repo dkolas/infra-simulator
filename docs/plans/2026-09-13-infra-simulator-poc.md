@@ -1,5 +1,7 @@
 # Infra simulator POC
 
+**Status:** implemented 2026-09-13. Divergences from the plan are recorded under "As built" at the end.
+
 **Goal:** A browser-only app, deployed on Vercel, that simulates the architecture in `docs/concept.md`. Done means: the default scenario runs healthy, pressing the 10x button drives it into visible breakdown on the latency and error charts and the schematic, every parameter in the concept's defaults table is editable from a config drawer, and the same seed replays identically.
 **Out of scope:** everything in concept sections 7 and 8, including the hand-drawn traffic profile.
 
@@ -120,3 +122,15 @@ src/app/components/Explain.tsx  one- or two-sentence panel blurb with expand
 - The worker protocol is untyped beyond `protocol.ts`. No versioning, no error channel.
 - The store is a plain React context with `useReducer`. No persistence, no undo.
 - Screenshots in `docs/` from step 15 are for the record, not a regression suite.
+
+## As built
+
+Divergences from the plan above, recorded after implementation.
+
+- Steps 5 to 7 were built as one engine module with three test groups rather than three separate commits. The design notes held; one addition is a fixed 5 s pause between a replica dying and its restart beginning.
+- `scripts/scenario.ts` runs the engine headlessly and prints a table. It was used for tuning and is kept for future tuning.
+- `scripts/shot.mjs` drives headless Chrome over the DevTools Protocol for screenshots and interaction checks. Browser tools were unavailable in the session, and the plain `--screenshot` flag cannot wait real time for the worker thread or emulate a phone width. Chrome enforces a 500 px minimum window, so phone checks use device emulation.
+- The store honours a `?autostart` query parameter. It exists for demo links and the screenshot harness.
+- Tuned defaults differ from the plan's table: worker concurrency 14, min replicas 4, scale-up step 4, cooldown 30 s, evaluation 15 s, target queue depth per worker 5. `docs/concept.md` carries the current values.
+- Configuration for processing time and memory distributions lives in the Incoming requests drawer, per the concept, rather than a separate panel. Percentile window lives in a small Metrics drawer opened from the latency chart title.
+- Step 16, deploy, is left to the user: the repository has no remote yet. The README states the Vercel settings.

@@ -150,7 +150,7 @@ Starting values, chosen so the default scenario runs healthy and breaks down und
 | Workers | memory limit | 1.5 GB |
 | Workers | base memory (runtime, before any job) | 256 MB |
 | Workers | replicas min / max | 4 / 20 |
-| Workers | target queue depth per worker | 10 |
+| Workers | target queue depth per worker | 5 |
 | Workers | cold start | 30 s |
 | Workers | drain grace period | 60 s |
 | Workers | scale step up / down | 4 / 1 |

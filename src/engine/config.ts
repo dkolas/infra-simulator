@@ -110,7 +110,7 @@ export const DEFAULTS: SimConfig = {
     scaling: {
       min: 4,
       max: 20,
-      target: 10,
+      target: 5,
       evalInterval: 15,
       upStep: 4,
       upCooldown: 30,
