@@ -146,15 +146,15 @@ Starting values, chosen so the default scenario runs healthy and breaks down und
 | Queue | max attempts | 3 |
 | Queue | visibility timeout | 60 s |
 | Queue | job deadline | 120 s |
-| Workers | concurrency per container | 16 |
+| Workers | concurrency per container | 14 |
 | Workers | memory limit | 1.5 GB |
 | Workers | base memory (runtime, before any job) | 256 MB |
-| Workers | replicas min / max | 2 / 20 |
+| Workers | replicas min / max | 4 / 20 |
 | Workers | target queue depth per worker | 10 |
 | Workers | cold start | 30 s |
 | Workers | drain grace period | 60 s |
-| Workers | scale step up / down | 2 / 1 |
-| Workers | eval interval, up cooldown, down cooldown | 30 s, 60 s, 300 s |
+| Workers | scale step up / down | 4 / 1 |
+| Workers | eval interval, up cooldown, down cooldown | 15 s, 30 s, 300 s |
 | External | capacity cap | off |
 | External | failure rate | 1 % |
 | Sim | playback speed | 10x |
