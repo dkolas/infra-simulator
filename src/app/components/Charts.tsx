@@ -11,10 +11,10 @@ const rps = (v: number) => `${v.toFixed(0)}/s`;
 export function Charts() {
   const { series, snapshot, config } = useSim();
   const now = snapshot?.t ?? 0;
-  const green = 'var(--text)';
-  const amber = 'var(--warn)';
-  const red = 'var(--danger)';
-  const dim = 'var(--muted)';
+  const green = '--text';
+  const amber = '--warn';
+  const red = '--danger';
+  const dim = '--muted';
 
   const latency = useMemo<SeriesSpec[]>(
     () => [

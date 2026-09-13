@@ -19,7 +19,7 @@ export function Controls() {
     <section className="panel controls" aria-label="Simulation controls">
       <div className="panel-head">
         <h2>Controls</h2>
-        <span aria-live="polite">
+        <span>
           T+{fmtTime(snapshot?.t ?? 0)} <span className="muted">{running ? `running ${speed}×` : 'paused'}</span>
         </span>
       </div>

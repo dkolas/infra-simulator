@@ -127,12 +127,16 @@ export function ConfigDrawer() {
   const closeRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     if (!drawer) return;
+    const opener = document.activeElement as HTMLElement | null;
     closeRef.current?.focus();
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') store.openDrawer(null);
     };
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      opener?.focus?.();
+    };
   }, [drawer]);
   if (!drawer) return null;
   return (

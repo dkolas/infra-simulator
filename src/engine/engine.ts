@@ -11,6 +11,8 @@ export const METRICS_TICK = 1;
 const RESTART_DELAY = 5;
 /** Scaler ignores metric ratios this close to 1, like a Kubernetes HPA. */
 const SCALE_TOLERANCE = 0.1;
+/** First retry delay after a capped external call; doubles per attempt like a typical 429 backoff. */
+const CAP_BACKOFF_BASE = 1;
 
 type Job = {
   id: number;
@@ -45,6 +47,7 @@ type Event =
   | { kind: 'arrival'; gen: number }
   | { kind: 'apiDone'; replica: Replica; job: Job }
   | { kind: 'externalDone'; job: Job; replica: Replica; callGen: number }
+  | { kind: 'capRetry'; job: Job; replica: Replica; callGen: number }
   | { kind: 'visibilityExpired'; job: Job }
   | { kind: 'deadline'; job: Job }
   | { kind: 'restart'; replica: Replica; gen: number }
@@ -164,10 +167,6 @@ export class Engine {
     return this.queue.length - this.queueHead;
   }
 
-  replicas(tier: 'api' | 'workers'): readonly Replica[] {
-    return tier === 'api' ? this.api : this.workers;
-  }
-
   // ---------------------------------------------------------------- events
 
   private handle(e: Event): void {
@@ -183,6 +182,9 @@ export class Engine {
         break;
       case 'externalDone':
         if (e.job.worker === e.replica && e.job.callGen === e.callGen) this.onExternalDone(e.job, e.replica);
+        break;
+      case 'capRetry':
+        if (e.job.worker === e.replica && e.job.callGen === e.callGen) this.callExternal(e.replica, e.job);
         break;
       case 'visibilityExpired':
         this.onVisibilityExpired(e.job);
@@ -300,12 +302,24 @@ export class Engine {
       this.killWorker(worker);
       return;
     }
+    this.callExternal(worker, job);
+  }
 
+  /** Make the external call for a job the worker holds. Over the cap, the worker keeps the job and backs off. */
+  private callExternal(worker: Replica, job: Job): void {
     const ext = this.config.external;
     if (ext.capEnabled && this.externalInflight >= ext.capConcurrent) {
       this.totals.externalCapped++;
-      this.releaseJob(worker, job);
-      this.retry(job);
+      job.attempt++;
+      if (job.attempt > this.config.queue.maxAttempts) {
+        this.releaseJob(worker, job);
+        this.fail(job, 'exhausted');
+        if (worker.state === 'draining' && worker.jobs.size === 0) this.terminate(worker);
+        this.dispatch();
+        return;
+      }
+      const backoff = CAP_BACKOFF_BASE * 2 ** (job.attempt - 2);
+      this.events.push(this.t + backoff, { kind: 'capRetry', job, replica: worker, callGen: job.callGen });
       return;
     }
     this.externalInflight++;

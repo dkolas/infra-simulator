@@ -79,17 +79,3 @@ export function sample(rng: Rng, d: Distribution): number {
     }
   }
 }
-
-export function distributionMean(d: Distribution): number {
-  switch (d.kind) {
-    case 'constant':
-    case 'exponential':
-      return d.p50;
-    case 'lognormal':
-      return lognormalMean(d.p50, d.p95);
-    case 'bimodal': {
-      const h = d.heavyFraction ?? 0.2;
-      return (1 - h) * lognormalMean(d.p50, d.p50 * 1.3) + h * lognormalMean(d.p95, d.p95 * 1.3);
-    }
-  }
-}

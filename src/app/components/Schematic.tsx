@@ -9,25 +9,32 @@ const STATE_LABEL: Record<ReplicaView['state'], string> = {
   dead: 'dead',
 };
 
+/** Squares are decorative inside the box button; the box's label carries the state summary. */
 function Replicas({ replicas, capacity }: { replicas: ReplicaView[]; capacity: number }) {
   return (
-    <ul className="replicas" aria-label="Replicas">
+    <span className="replicas" aria-hidden="true">
       {replicas.map((r) => (
-        <li
+        <span
           key={r.id}
           className={`replica ${r.state}`}
           style={{ '--load': r.state === 'ready' ? Math.min(1, r.inflight / Math.max(1, capacity)) : 0 } as React.CSSProperties}
           title={`#${r.id} ${STATE_LABEL[r.state]}, ${r.inflight} in flight`}
-          aria-label={`Replica ${r.id} ${STATE_LABEL[r.state]}, ${r.inflight} in flight`}
         />
       ))}
-    </ul>
+    </span>
   );
 }
 
-function Box({ id, title, stat, children }: { id: Exclude<DrawerId, null>; title: string; stat: string; children?: React.ReactNode }) {
+/** "3 ready, 1 cold-starting" style summary for a box label. */
+function summarize(replicas: ReplicaView[]): string {
+  const counts = new Map<ReplicaView['state'], number>();
+  for (const r of replicas) counts.set(r.state, (counts.get(r.state) ?? 0) + 1);
+  return [...counts].map(([state, n]) => `${n} ${STATE_LABEL[state]}`).join(', ');
+}
+
+function Box({ id, title, stat, detail, children }: { id: Exclude<DrawerId, null>; title: string; stat: string; detail?: string; children?: React.ReactNode }) {
   return (
-    <button type="button" className="box" onClick={() => store.openDrawer(id)} aria-label={`${title}. ${stat}. Open configuration.`}>
+    <button type="button" className="box" onClick={() => store.openDrawer(id)} aria-label={`${title}. ${stat}.${detail ? ` ${detail}.` : ''} Open configuration.`}>
       <span className="box-head">
         <span>{title}</span>
         <span className="muted">cfg</span>
@@ -63,7 +70,7 @@ export function Schematic() {
         long="Green squares are ready, filling as they take load. Amber is cold-starting. Red is dead from memory pressure. Dim squares are draining before shutdown."
       />
       <div className="flow">
-        <Box id="api" title="Web API" stat={`${api.length} containers · ${apiInflight} in flight`}>
+        <Box id="api" title="Web API" stat={`${api.length} containers · ${apiInflight} in flight`} detail={summarize(api)}>
           <Replicas replicas={api} capacity={config.api.connections} />
         </Box>
         <span className="arrow" aria-hidden="true">
@@ -79,7 +86,7 @@ export function Schematic() {
         <span className="arrow" aria-hidden="true">
           ▶
         </span>
-        <Box id="workers" title="Workers" stat={`${workers.length} containers · ${workerInflight} jobs · ${deaths} deaths`}>
+        <Box id="workers" title="Workers" stat={`${workers.length} containers · ${workerInflight} jobs · ${deaths} deaths`} detail={summarize(workers)}>
           <Replicas replicas={workers} capacity={config.workers.concurrency} />
         </Box>
         <span className="arrow" aria-hidden="true">

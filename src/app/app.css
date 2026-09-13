@@ -113,15 +113,13 @@ button.link:hover {
 }
 
 .replicas {
-  list-style: none;
-  margin: 0;
-  padding: 0;
   display: flex;
   flex-wrap: wrap;
   gap: 3px;
 }
 
 .replica {
+  display: block;
   width: 12px;
   height: 12px;
   border: 1px solid var(--muted);

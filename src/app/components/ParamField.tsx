@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PARAMS, getPath } from '../../engine/config';
 import { store, useSim } from '../store';
 
@@ -7,8 +7,26 @@ export function ParamField({ path }: { path: string }) {
   const { config } = useSim();
   const meta = PARAMS[path];
   const value = getPath(config, path) as number;
+  const [draft, setDraft] = useState(String(value));
   const [showLong, setShowLong] = useState(false);
   const id = `param-${path.replace(/\./g, '-')}`;
+
+  // Follow external changes (reset, another control) while not mid-edit.
+  useEffect(() => {
+    setDraft(String(value));
+  }, [value]);
+
+  const commit = () => {
+    const v = Number(draft);
+    if (draft.trim() === '' || !Number.isFinite(v)) {
+      setDraft(String(value));
+      return;
+    }
+    const clamped = Math.min(meta.max, Math.max(meta.min, v));
+    setDraft(String(clamped));
+    if (clamped !== value) store.update(path, clamped);
+  };
+
   return (
     <div className="param">
       <div className="param-row">
@@ -17,13 +35,14 @@ export function ParamField({ path }: { path: string }) {
           <input
             id={id}
             type="number"
-            value={value}
+            value={draft}
             min={meta.min}
             max={meta.max}
             step={meta.step}
-            onChange={(e) => {
-              const v = Number(e.target.value);
-              if (Number.isFinite(v)) store.update(path, Math.min(meta.max, Math.max(meta.min, v)));
+            onChange={(e) => setDraft(e.target.value)}
+            onBlur={commit}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') commit();
             }}
           />
           {meta.unit && <span className="muted"> {meta.unit}</span>}

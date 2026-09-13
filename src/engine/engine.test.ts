@@ -36,7 +36,7 @@ describe('happy path', () => {
   });
 
   test('load above worker capacity grows the queue', () => {
-    // 2 workers × 16 slots = 32 in flight; 2 s jobs → 16 jobs/s capacity. Offer 40/s.
+    // 2 workers × 14 slots = 28 in flight; 2 s jobs → 14 jobs/s capacity. Offer 40/s.
     const cfg = calm((c) => ({ ...c, traffic: { ...c.traffic, baseRate: 40 } }));
     const { series } = run(cfg, 60);
     const depths = series.map((p) => p.queueDepth);
@@ -102,8 +102,15 @@ describe('failure modes', () => {
       external: { ...c.external, capEnabled: true, capConcurrent: 5 },
     }));
     const { engine } = run(cfg, 60);
+    const s = engine.snapshot();
     expect(engine.totals.externalCapped).toBeGreaterThan(0);
-    expect(engine.snapshot().schematic.external.inflight).toBeLessThanOrEqual(5);
+    expect(s.schematic.external.inflight).toBeLessThanOrEqual(5);
+    // Capped jobs wait on the worker with backoff rather than burning all attempts instantly.
+    expect(engine.totals.completions).toBeGreaterThan(0);
+    const held = s.schematic.workers.reduce((n, w) => n + w.inflight, 0);
+    expect(held + s.schematic.queue.visible).toBeGreaterThan(0);
+    const atApi = s.schematic.api.reduce((n, a) => n + a.inflight, 0);
+    expect(engine.totals.completions + engine.totals.errors + held + atApi + s.schematic.queue.visible + s.schematic.queue.invisible).toBe(engine.totals.arrivals);
   });
 
   test('full queue rejects jobs', () => {

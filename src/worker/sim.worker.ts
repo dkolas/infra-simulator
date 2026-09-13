@@ -62,6 +62,7 @@ self.onmessage = (e: MessageEvent<ToWorker>) => {
       break;
     case 'setConfig':
       engine?.setConfig(m.config);
+      post();
       break;
     case 'tenX':
       engine?.triggerTenX();

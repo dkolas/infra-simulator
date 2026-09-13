@@ -4,6 +4,7 @@ import type { MetricsPoint } from '../../engine/types';
 export type SeriesSpec = {
   key: keyof MetricsPoint;
   label: string;
+  /** A design token name such as '--text'. Resolved at draw time; canvas cannot read var(). */
   color: string;
   dashed?: boolean;
 };
@@ -92,7 +93,7 @@ export function Chart({ data, series, span, now, format, minY = 1, maxY, height 
       }
 
       for (const s of series) {
-        ctx.strokeStyle = s.color;
+        ctx.strokeStyle = cssVar(s.color);
         ctx.setLineDash(s.dashed ? [3, 3] : []);
         ctx.beginPath();
         let started = false;
@@ -121,7 +122,7 @@ export function Chart({ data, series, span, now, format, minY = 1, maxY, height 
       <canvas ref={ref} style={{ width: '100%', height }} role="img" aria-label={series.map((s) => `${s.label} ${latest ? format(latest[s.key] as number) : 'no data'}`).join(', ')} />
       <ul className="legend">
         {series.map((s) => (
-          <li key={s.key} style={{ color: s.color }}>
+          <li key={s.key} style={{ color: `var(${s.color})` }}>
             <span aria-hidden="true">{s.dashed ? '╌' : '─'} </span>
             {s.label} <span className="value">{latest ? format(latest[s.key] as number) : '—'}</span>
           </li>
