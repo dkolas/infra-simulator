@@ -108,12 +108,13 @@ export function Chart({ data, series, span, now, format, minY = 1, maxY, height 
       ctx.stroke();
       ctx.fillText(format(v), padL - 4, yy);
     }
-    ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
     for (let i = 0; i <= 4; i++) {
       const t = t0 + (span * i) / 4;
       const agoMin = (span * (4 - i)) / 4 / 60;
       const label = i === 4 ? 'now' : `-${Number.isInteger(agoMin) ? agoMin : agoMin.toFixed(1)}m`;
+      // End labels are anchored inward so they stay inside the canvas.
+      ctx.textAlign = i === 0 ? 'left' : i === 4 ? 'right' : 'center';
       ctx.fillText(label, x(t), h - padB + 4);
     }
 
